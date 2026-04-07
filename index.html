@@ -392,6 +392,34 @@
 
     .ex-btns { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
 
+    /* ── Exercise done state ── */
+    .exercise.ex-done {
+      opacity: 0.5;
+    }
+    .exercise.ex-done .exercise-name {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .ex-check {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      background: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: transparent;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .ex-check:hover { border-color: var(--muted); }
+    .ex-check.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
     /* ── Modal overlay ── */
     .modal-overlay {
       display: none;
@@ -754,7 +782,7 @@ function getDayData(dayId) {
 
 function getExData(dayId, exName) {
   const dd = getDayData(dayId);
-  if (!dd.exercises[exName]) dd.exercises[exName] = { sets: [], notes: '' };
+  if (!dd.exercises[exName]) dd.exercises[exName] = { sets: [], notes: '', done: false };
   return dd.exercises[exName];
 }
 
@@ -861,7 +889,19 @@ function buildExercise(day, ex) {
   const hdr = document.createElement('div');
   hdr.className = 'exercise-header';
 
+  const exCheck = document.createElement('button');
+  exCheck.className = 'ex-check' + (exData.done ? ' checked' : '');
+  exCheck.title = 'Mark exercise done';
+  exCheck.textContent = '✓';
+  exCheck.addEventListener('click', () => {
+    exData.done = !exData.done;
+    save(data);
+    exCheck.className = 'ex-check' + (exData.done ? ' checked' : '');
+    div.classList.toggle('ex-done', exData.done);
+  });
+
   const exInfo = document.createElement('div');
+  exInfo.style.flex = '1';
   exInfo.innerHTML = `<div class="exercise-name">${ex.name}</div><div class="exercise-target">${ex.target}</div>`;
 
   const btns = document.createElement('div');
@@ -879,8 +919,11 @@ function buildExercise(day, ex) {
 
   btns.appendChild(notesToggle);
   btns.appendChild(demoBtn);
+  hdr.appendChild(exCheck);
   hdr.appendChild(exInfo);
   hdr.appendChild(btns);
+
+  if (exData.done) div.classList.add('ex-done');
 
   const notesWrap = document.createElement('div');
   notesWrap.className = 'exercise-notes' + (exData.notes ? ' open' : '');
