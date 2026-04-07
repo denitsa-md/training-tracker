@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Tracker</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222534;
+      --border: #2e3148;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --accent3: #43e97b;
+      --text: #e8eaf0;
+      --muted: #7b7f9e;
+      --push: #ff6b6b;
+      --lower: #ffd93d;
+      --pull: #6bcb77;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .week-nav button {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .week-nav button:hover { background: var(--border); }
+
+    #week-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      min-width: 100px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .today-btn {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: #fff !important;
+      padding: 0 14px !important;
+      width: auto !important;
+      font-size: 0.8rem !important;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .progress-bar-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .progress-bar-wrap h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .week-progress {
+      display: flex;
+      gap: 8px;
+    }
+
+    .day-dot {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+    .day-dot.done-push { background: var(--push); }
+    .day-dot.done-lower { background: var(--lower); }
+    .day-dot.done-pull { background: var(--pull); }
+
+    .day-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .day-header {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      gap: 12px;
+    }
+
+    .day-header:hover { background: var(--surface2); }
+
+    .day-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .day-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-push { background: rgba(255,107,107,0.15); color: var(--push); }
+    .badge-lower { background: rgba(255,217,61,0.15); color: var(--lower); }
+    .badge-pull { background: rgba(107,203,119,0.15); color: var(--pull); }
+
+    .day-name { font-size: 1rem; font-weight: 600; }
+    .day-sub { font-size: 0.8rem; color: var(--muted); }
+
+    .day-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .complete-btn {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .complete-btn.incomplete {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .complete-btn.incomplete:hover { border-color: var(--accent); color: var(--accent); }
+
+    .complete-btn.done-push { background: rgba(255,107,107,0.2); color: var(--push); border: 1px solid var(--push); }
+    .complete-btn.done-lower { background: rgba(255,217,61,0.2); color: var(--lower); border: 1px solid var(--lower); }
+    .complete-btn.done-pull { background: rgba(107,203,119,0.2); color: var(--pull); border: 1px solid var(--pull); }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: transform 0.2s;
+    }
+    .day-card.open .chevron { transform: rotate(180deg); }
+
+    .day-body {
+      display: none;
+      padding: 0 20px 20px;
+    }
+    .day-card.open .day-body { display: block; }
+
+    .exercise-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .exercise {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .exercise-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .exercise-name { font-size: 0.95rem; font-weight: 600; }
+    .exercise-target {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .notes-toggle {
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .notes-toggle:hover { background: rgba(108,99,255,0.12); }
+
+    .exercise-notes {
+      display: none;
+      margin-bottom: 10px;
+    }
+    .exercise-notes.open { display: block; }
+
+    .exercise-notes textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      resize: vertical;
+      min-height: 52px;
+      font-family: inherit;
+    }
+    .exercise-notes textarea:focus { outline: none; border-color: var(--accent); }
+
+    .sets-grid {
+      display: grid;
+      grid-template-columns: 28px 1fr 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .sets-grid .col-head {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    .set-num {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .set-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.88rem;
+      padding: 6px 8px;
+      text-align: center;
+      width: 100%;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .set-input:focus { outline: none; border-color: var(--accent); }
+    .set-input::placeholder { color: var(--border); }
+
+    .set-input.is-plank {
+      grid-column: 2 / 5;
+    }
+
+    .pr-badge {
+      font-size: 0.65rem;
+      color: #ffd93d;
+      font-weight: 700;
+      display: none;
+    }
+    .pr-badge.show { display: inline; }
+
+    .add-set-btn {
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-top: 6px;
+      padding: 2px 0;
+    }
+    .add-set-btn:hover { text-decoration: underline; }
+
+    .progression-tip {
+      margin-top: 20px;
+      background: rgba(108,99,255,0.08);
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .progression-tip strong { color: var(--text); }
+
+    .history-section {
+      margin-top: 20px;
+    }
+
+    .history-section h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .history-table th {
+      color: var(--muted);
+      font-weight: 500;
+      padding: 4px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid rgba(46,49,72,0.5);
+      color: var(--text);
+    }
+    .history-table tr:last-child td { border-bottom: none; }
+
+    footer {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    @media (max-width: 480px) {
+      .day-header { padding: 14px 16px; }
+      .day-body { padding: 0 12px 16px; }
+      .exercise { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Training<span>Tracker</span></div>
+  <div class="week-nav">
+    <button id="prev-week" title="Previous week">&#8249;</button>
+    <div id="week-label">Week X</div>
+    <button id="next-week" title="Next week">&#8250;</button>
+    <button class="week-nav today-btn" id="today-btn">Today</button>
+  </div>
+</header>
+
+<main>
+  <div class="progress-bar-wrap">
+    <h3>This week</h3>
+    <div class="week-progress" id="week-progress">
+      <div class="day-dot" id="dot-0"></div>
+      <div class="day-dot" id="dot-1"></div>
+      <div class="day-dot" id="dot-2"></div>
+    </div>
+  </div>
+
+  <div id="days-container"></div>
+</main>
+
+<footer>Data stored locally in your browser · <a href="https://denitsa-md.github.io/training-tracker/" style="color:var(--accent)">training-tracker</a></footer>
+
+<script>
+// ─── Program definition ──────────────────────────────────────────────────────
+
+const PROGRAM = [
+  {
+    id: 'push',
+    label: 'Day 1',
+    name: 'Push Focus',
+    sub: 'Upper emphasis',
+    color: 'push',
+    exercises: [
+      { name: 'Dumbbell bench press',            target: '4 × 8–10',   sets: 4, type: 'weight' },
+      { name: 'Ring push-ups',                   target: '3 × 8–12',   sets: 3, type: 'weight' },
+      { name: 'Seated DB shoulder press',        target: '3 × 8–10',   sets: 3, type: 'weight' },
+      { name: 'DB lateral raises',               target: '3 × 12–15',  sets: 3, type: 'weight' },
+      { name: 'DB skull crushers / ring tricep extensions', target: '3 × 10–12', sets: 3, type: 'weight' },
+      { name: 'Plank',                           target: '3 × 30–45s', sets: 3, type: 'time'   },
+    ],
+  },
+  {
+    id: 'lower',
+    label: 'Day 2',
+    name: 'Lower + Core',
+    sub: 'Legs & abs',
+    color: 'lower',
+    exercises: [
+      { name: 'Goblet squat',                    target: '4 × 8–12',   sets: 4, type: 'weight' },
+      { name: 'DB Romanian deadlift',            target: '4 × 8–10',   sets: 4, type: 'weight' },
+      { name: 'Bulgarian split squat',           target: '3 × 8–10/leg', sets: 3, type: 'weight' },
+      { name: 'Hip thrust',                      target: '3 × 10–12',  sets: 3, type: 'weight' },
+      { name: 'Band lateral walks',              target: '3 × 12/side', sets: 3, type: 'reps'  },
+      { name: 'Hanging knee raises',             target: '3 × 8–12',   sets: 3, type: 'reps'  },
+    ],
+  },
+  {
+    id: 'pull',
+    label: 'Day 3',
+    name: 'Pull Focus',
+    sub: 'Upper emphasis',
+    color: 'pull',
+    exercises: [
+      { name: 'Pull-ups (band-assisted if needed)', target: '4 × max−2',  sets: 4, type: 'reps'  },
+      { name: 'Ring rows (feet elevated)',        target: '3 × 8–12',   sets: 3, type: 'reps'  },
+      { name: 'One-arm DB row',                  target: '3 × 10/side', sets: 3, type: 'weight' },
+      { name: 'Ring face pulls / band face pulls', target: '3 × 12–15', sets: 3, type: 'reps'  },
+      { name: 'DB curls',                        target: '3 × 10–12',  sets: 3, type: 'weight' },
+      { name: 'Ring / DB reverse fly',           target: '3 × 12',     sets: 3, type: 'weight' },
+    ],
+  },
+];
+
+const PROGRESSION_TIP = {
+  push:  'When you hit the <strong>top of every rep range</strong> with good form on all sets: add a rep → then a set → then increase weight.',
+  lower: 'When you hit the <strong>top of every rep range</strong> on all sets: add a rep → then a set → then increase weight. Adjust volume on heavy running weeks.',
+  pull:  'For pull-ups, <strong>reduce band assistance</strong> over time. When you hit the top of the rep range, add a rep → then a set → then reduce band thickness.',
+};
+
+// ─── Storage helpers ─────────────────────────────────────────────────────────
+
+const STORE_KEY = 'tt_v1';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; }
+}
+
+function save(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+// ─── Week helpers ─────────────────────────────────────────────────────────────
+
+// Use Mon-based ISO week key: "2025-W14"
+function weekKey(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset * 7);
+  return isoWeekKey(d);
+}
+
+function isoWeekKey(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const wk = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(wk).padStart(2, '0')}`;
+}
+
+function weekLabel(key) {
+  // key = "2025-W14"  → compute Monday date
+  const [year, wPart] = key.split('-W');
+  const wn = parseInt(wPart, 10);
+  // Jan 4 is always in week 1
+  const jan4 = new Date(Date.UTC(+year, 0, 4));
+  const monday = new Date(jan4);
+  monday.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay() || 7) - 1) + (wn - 1) * 7);
+  const sunday = new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate() + 6);
+  const fmt = d => d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  const thisWeek = isoWeekKey(new Date());
+  const suffix = key === thisWeek ? ' · This week' : '';
+  return `${fmt(monday)} – ${fmt(sunday)}${suffix}`;
+}
+
+// ─── State ───────────────────────────────────────────────────────────────────
+
+let weekOffset = 0;
+let data = load();
+
+function currentKey() { return weekKey(weekOffset); }
+
+function getWeekData() {
+  const k = currentKey();
+  if (!data[k]) data[k] = {};
+  return data[k];
+}
+
+function getDayData(dayId) {
+  const wd = getWeekData();
+  if (!wd[dayId]) wd[dayId] = { done: false, exercises: {} };
+  return wd[dayId];
+}
+
+function getExData(dayId, exName) {
+  const dd = getDayData(dayId);
+  if (!dd.exercises[exName]) dd.exercises[exName] = { sets: [], notes: '' };
+  return dd.exercises[exName];
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+
+function renderAll() {
+  document.getElementById('week-label').textContent = weekLabel(currentKey());
+  renderProgress();
+  renderDays();
+}
+
+function renderProgress() {
+  PROGRAM.forEach((day, i) => {
+    const dd = getDayData(day.id);
+    const dot = document.getElementById(`dot-${i}`);
+    dot.className = 'day-dot' + (dd.done ? ` done-${day.color}` : '');
+  });
+}
+
+function renderDays() {
+  const container = document.getElementById('days-container');
+  container.innerHTML = '';
+  PROGRAM.forEach(day => container.appendChild(buildDayCard(day)));
+}
+
+function buildDayCard(day) {
+  const dd = getDayData(day.id);
+  const card = document.createElement('div');
+  card.className = 'day-card';
+  card.dataset.day = day.id;
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'day-header';
+  header.innerHTML = `
+    <div class="day-title">
+      <span class="day-badge badge-${day.color}">${day.label}</span>
+      <div>
+        <div class="day-name">${day.name}</div>
+        <div class="day-sub">${day.sub}</div>
+      </div>
+    </div>
+    <div class="day-actions">
+      <button class="complete-btn ${dd.done ? 'done-' + day.color : 'incomplete'}" data-day="${day.id}">
+        ${dd.done ? '✓ Done' : 'Mark done'}
+      </button>
+      <span class="chevron">▾</span>
+    </div>
+  `;
+
+  header.addEventListener('click', e => {
+    if (e.target.classList.contains('complete-btn')) return;
+    card.classList.toggle('open');
+  });
+
+  header.querySelector('.complete-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    const dd2 = getDayData(day.id);
+    dd2.done = !dd2.done;
+    save(data);
+    renderProgress();
+    // re-render just this button
+    const btn = e.target;
+    btn.className = `complete-btn ${dd2.done ? 'done-' + day.color : 'incomplete'}`;
+    btn.textContent = dd2.done ? '✓ Done' : 'Mark done';
+  });
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'day-body';
+
+  const exList = document.createElement('div');
+  exList.className = 'exercise-list';
+
+  day.exercises.forEach(ex => {
+    exList.appendChild(buildExercise(day, ex));
+  });
+
+  body.appendChild(exList);
+
+  // Progression tip
+  const tip = document.createElement('div');
+  tip.className = 'progression-tip';
+  tip.innerHTML = `<strong>Progression:</strong> ${PROGRESSION_TIP[day.id]}`;
+  body.appendChild(tip);
+
+  // History
+  body.appendChild(buildHistory(day));
+
+  card.appendChild(header);
+  card.appendChild(body);
+  return card;
+}
+
+function buildExercise(day, ex) {
+  const exData = getExData(day.id, ex.name);
+  const div = document.createElement('div');
+  div.className = 'exercise';
+
+  const isTime = ex.type === 'time';
+  const isRepsOnly = ex.type === 'reps';
+
+  // Header row
+  const hdr = document.createElement('div');
+  hdr.className = 'exercise-header';
+  hdr.innerHTML = `
+    <div>
+      <div class="exercise-name">${ex.name}</div>
+      <div class="exercise-target">${ex.target}</div>
+    </div>
+    <button class="notes-toggle">notes</button>
+  `;
+
+  const notesWrap = document.createElement('div');
+  notesWrap.className = 'exercise-notes' + (exData.notes ? ' open' : '');
+  const textarea = document.createElement('textarea');
+  textarea.placeholder = 'Form notes, variations, how it felt…';
+  textarea.value = exData.notes || '';
+  textarea.addEventListener('input', () => {
+    exData.notes = textarea.value;
+    save(data);
+  });
+  notesWrap.appendChild(textarea);
+
+  hdr.querySelector('.notes-toggle').addEventListener('click', () => {
+    notesWrap.classList.toggle('open');
+  });
+
+  div.appendChild(hdr);
+  div.appendChild(notesWrap);
+
+  // Sets grid
+  const grid = document.createElement('div');
+  grid.className = 'sets-grid';
+
+  // Ensure we have at least ex.sets entries
+  while (exData.sets.length < ex.sets) exData.sets.push({});
+
+  function renderSets() {
+    grid.innerHTML = '';
+    // Column headers
+    grid.innerHTML = `
+      <div class="col-head">#</div>
+      ${isTime
+        ? '<div class="col-head" style="grid-column:2/5">Duration (s)</div>'
+        : isRepsOnly
+          ? '<div class="col-head" style="grid-column:2/5">Reps</div>'
+          : '<div class="col-head">Weight (kg)</div><div class="col-head">Reps</div><div class="col-head">RPE</div>'
+      }
+    `;
+
+    exData.sets.forEach((set, i) => {
+      const numEl = document.createElement('div');
+      numEl.className = 'set-num';
+      numEl.textContent = i + 1;
+      grid.appendChild(numEl);
+
+      if (isTime) {
+        const inp = document.createElement('input');
+        inp.type = 'number'; inp.min = 0;
+        inp.className = 'set-input is-plank';
+        inp.placeholder = '30';
+        inp.value = set.duration || '';
+        inp.addEventListener('change', () => { set.duration = inp.value; save(data); });
+        grid.appendChild(inp);
+      } else if (isRepsOnly) {
+        const inp = document.createElement('input');
+        inp.type = 'number'; inp.min = 0;
+        inp.className = 'set-input is-plank';
+        inp.placeholder = '—';
+        inp.value = set.reps || '';
+        inp.addEventListener('change', () => { set.reps = inp.value; save(data); });
+        grid.appendChild(inp);
+      } else {
+        const wInp = document.createElement('input');
+        wInp.type = 'number'; wInp.min = 0; wInp.step = 0.5;
+        wInp.className = 'set-input';
+        wInp.placeholder = '—';
+        wInp.value = set.weight || '';
+        wInp.addEventListener('change', () => { set.weight = wInp.value; save(data); });
+
+        const rInp = document.createElement('input');
+        rInp.type = 'number'; rInp.min = 0;
+        rInp.className = 'set-input';
+        rInp.placeholder = '—';
+        rInp.value = set.reps || '';
+        rInp.addEventListener('change', () => { set.reps = rInp.value; save(data); });
+
+        const eInp = document.createElement('input');
+        eInp.type = 'number'; eInp.min = 1; eInp.max = 10;
+        eInp.className = 'set-input';
+        eInp.placeholder = '—';
+        eInp.value = set.rpe || '';
+        eInp.addEventListener('change', () => { set.rpe = eInp.value; save(data); });
+
+        grid.appendChild(wInp);
+        grid.appendChild(rInp);
+        grid.appendChild(eInp);
+      }
+    });
+
+    // Add set button
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-set-btn';
+    addBtn.textContent = '+ add set';
+    addBtn.style.gridColumn = '1 / -1';
+    addBtn.addEventListener('click', () => {
+      exData.sets.push({});
+      save(data);
+      renderSets();
+    });
+    grid.appendChild(addBtn);
+  }
+
+  renderSets();
+  div.appendChild(grid);
+  return div;
+}
+
+function buildHistory(day) {
+  const wrap = document.createElement('div');
+  wrap.className = 'history-section';
+
+  // Collect last 4 weeks of data for this day
+  const rows = [];
+  for (let w = -1; w >= -8; w--) {
+    const k = weekKey(weekOffset + w);
+    const wd = data[k];
+    if (!wd || !wd[day.id]) continue;
+    const dd = wd[day.id];
+    rows.push({ key: k, done: dd.done });
+    if (rows.length >= 4) break;
+  }
+
+  if (rows.length === 0) return wrap; // no history yet
+
+  wrap.innerHTML = '<h4>Previous sessions</h4>';
+  const table = document.createElement('table');
+  table.className = 'history-table';
+  table.innerHTML = `<tr><th>Week</th><th>Completed</th></tr>`;
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.key}</td><td>${r.done ? '✓' : '–'}</td>`;
+    table.appendChild(tr);
+  });
+
+  wrap.appendChild(table);
+  return wrap;
+}
+
+// ─── Nav ─────────────────────────────────────────────────────────────────────
+
+document.getElementById('prev-week').addEventListener('click', () => {
+  weekOffset--;
+  renderAll();
+});
+
+document.getElementById('next-week').addEventListener('click', () => {
+  weekOffset++;
+  renderAll();
+});
+
+document.getElementById('today-btn').addEventListener('click', () => {
+  weekOffset = 0;
+  renderAll();
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+renderAll();
+</script>
+</body>
+</html>
