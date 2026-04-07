@@ -420,138 +420,6 @@
       color: #fff;
     }
 
-    /* ── Modal overlay ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .modal-overlay.open { display: flex; }
-
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 620px;
-      max-height: 90vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .modal-header {
-      padding: 18px 20px 14px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .modal-title { font-size: 1rem; font-weight: 600; line-height: 1.3; }
-    .modal-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-
-    .modal-close {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 1.3rem;
-      cursor: pointer;
-      line-height: 1;
-      padding: 2px 6px;
-      border-radius: 6px;
-      flex-shrink: 0;
-    }
-    .modal-close:hover { color: var(--text); background: var(--surface2); }
-
-    .modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; }
-
-    /* Video embed */
-    .video-wrap {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: var(--bg);
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .video-wrap iframe {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      border: none;
-    }
-    .video-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 0.85rem;
-      text-align: center;
-      padding: 16px;
-    }
-    .video-placeholder .play-icon { font-size: 2rem; opacity: 0.3; }
-
-    /* Image preview */
-    .img-preview {
-      width: 100%;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      display: none;
-    }
-    .img-preview img { width: 100%; display: block; }
-    .img-preview.visible { display: block; }
-
-    /* URL fields */
-    .media-field label {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 6px;
-    }
-    .media-field-row {
-      display: flex;
-      gap: 8px;
-    }
-    .media-field input {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.85rem;
-      padding: 8px 10px;
-      font-family: inherit;
-    }
-    .media-field input:focus { outline: none; border-color: var(--accent); }
-    .media-field input::placeholder { color: var(--border); }
-
-    .search-btn {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.78rem;
-      padding: 0 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-    }
-    .search-btn:hover { color: var(--text); border-color: var(--muted); }
   </style>
 </head>
 <body>
@@ -581,45 +449,6 @@
 
 <footer>Data stored locally in your browser · <a href="https://denitsa-md.github.io/training-tracker/" style="color:var(--accent)">training-tracker</a></footer>
 
-<!-- Demo modal -->
-<div class="modal-overlay" id="demo-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title" id="modal-ex-name"></div>
-        <div class="modal-sub" id="modal-ex-target"></div>
-      </div>
-      <button class="modal-close" id="modal-close">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <div class="video-wrap" id="modal-video-wrap">
-        <div class="video-placeholder" id="modal-video-placeholder">
-          <div class="play-icon">&#9654;</div>
-          <div>Paste a YouTube link below to add a demo video</div>
-        </div>
-      </div>
-
-      <div class="img-preview" id="modal-img-preview">
-        <img id="modal-img" src="" alt="Exercise reference" />
-      </div>
-
-      <div class="media-field">
-        <label>Video URL (YouTube)</label>
-        <div class="media-field-row">
-          <input type="url" id="modal-video-url" placeholder="https://www.youtube.com/watch?v=..." />
-          <a class="search-btn" id="modal-yt-search" href="#" target="_blank" rel="noopener">Search YT</a>
-        </div>
-      </div>
-
-      <div class="media-field">
-        <label>Image URL (optional)</label>
-        <div class="media-field-row">
-          <input type="url" id="modal-image-url" placeholder="https://example.com/image.jpg" />
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
 // ─── Program definition ──────────────────────────────────────────────────────
@@ -632,12 +461,12 @@ const PROGRAM = [
     sub: 'Upper emphasis',
     color: 'push',
     exercises: [
-      { name: 'Dumbbell bench press',            target: '4 × 8–10',   sets: 4, type: 'weight' },
-      { name: 'Ring push-ups',                   target: '3 × 8–12',   sets: 3, type: 'weight' },
-      { name: 'Seated DB shoulder press',        target: '3 × 8–10',   sets: 3, type: 'weight' },
-      { name: 'DB lateral raises',               target: '3 × 12–15',  sets: 3, type: 'weight' },
-      { name: 'DB skull crushers / ring tricep extensions', target: '3 × 10–12', sets: 3, type: 'weight' },
-      { name: 'Plank',                           target: '3 × 30–45s', sets: 3, type: 'time'   },
+      { name: 'Dumbbell bench press',            target: '4 × 8–10',   sets: 4, type: 'weight', demo: 'dumbbell bench press proper form tutorial' },
+      { name: 'Ring push-ups',                   target: '3 × 8–12',   sets: 3, type: 'weight', demo: 'ring push ups gymnastics rings tutorial form' },
+      { name: 'Seated DB shoulder press',        target: '3 × 8–10',   sets: 3, type: 'weight', demo: 'seated dumbbell shoulder press proper form tutorial' },
+      { name: 'DB lateral raises',               target: '3 × 12–15',  sets: 3, type: 'weight', demo: 'dumbbell lateral raise proper form tutorial' },
+      { name: 'DB skull crushers / ring tricep extensions', target: '3 × 10–12', sets: 3, type: 'weight', demo: 'dumbbell skull crushers tricep extension proper form' },
+      { name: 'Plank',                           target: '3 × 30–45s', sets: 3, type: 'time',   demo: 'plank exercise proper form tutorial' },
     ],
   },
   {
@@ -647,12 +476,12 @@ const PROGRAM = [
     sub: 'Legs & abs',
     color: 'lower',
     exercises: [
-      { name: 'Goblet squat',                    target: '4 × 8–12',   sets: 4, type: 'weight' },
-      { name: 'DB Romanian deadlift',            target: '4 × 8–10',   sets: 4, type: 'weight' },
-      { name: 'Bulgarian split squat',           target: '3 × 8–10/leg', sets: 3, type: 'weight' },
-      { name: 'Hip thrust',                      target: '3 × 10–12',  sets: 3, type: 'weight' },
-      { name: 'Band lateral walks',              target: '3 × 12/side', sets: 3, type: 'reps'  },
-      { name: 'Hanging knee raises',             target: '3 × 8–12',   sets: 3, type: 'reps'  },
+      { name: 'Goblet squat',                    target: '4 × 8–12',   sets: 4, type: 'weight', demo: 'goblet squat proper form tutorial dumbbell' },
+      { name: 'DB Romanian deadlift',            target: '4 × 8–10',   sets: 4, type: 'weight', demo: 'dumbbell romanian deadlift proper form tutorial' },
+      { name: 'Bulgarian split squat',           target: '3 × 8–10/leg', sets: 3, type: 'weight', demo: 'bulgarian split squat proper form tutorial' },
+      { name: 'Hip thrust',                      target: '3 × 10–12',  sets: 3, type: 'weight', demo: 'hip thrust dumbbell proper form tutorial' },
+      { name: 'Band lateral walks',              target: '3 × 12/side', sets: 3, type: 'reps',  demo: 'resistance band lateral walks proper form tutorial' },
+      { name: 'Hanging knee raises',             target: '3 × 8–12',   sets: 3, type: 'reps',  demo: 'hanging knee raises proper form tutorial' },
     ],
   },
   {
@@ -662,12 +491,12 @@ const PROGRAM = [
     sub: 'Upper emphasis',
     color: 'pull',
     exercises: [
-      { name: 'Pull-ups (band-assisted if needed)', target: '4 × max−2',  sets: 4, type: 'reps'  },
-      { name: 'Ring rows (feet elevated)',        target: '3 × 8–12',   sets: 3, type: 'reps'  },
-      { name: 'One-arm DB row',                  target: '3 × 10/side', sets: 3, type: 'weight' },
-      { name: 'Ring face pulls / band face pulls', target: '3 × 12–15', sets: 3, type: 'reps'  },
-      { name: 'DB curls',                        target: '3 × 10–12',  sets: 3, type: 'weight' },
-      { name: 'Ring / DB reverse fly',           target: '3 × 12',     sets: 3, type: 'weight' },
+      { name: 'Pull-ups (band-assisted if needed)', target: '4 × max−2',  sets: 4, type: 'reps',  demo: 'pull up proper form tutorial band assisted' },
+      { name: 'Ring rows (feet elevated)',        target: '3 × 8–12',   sets: 3, type: 'reps',  demo: 'ring rows gymnastics rings tutorial form' },
+      { name: 'One-arm DB row',                  target: '3 × 10/side', sets: 3, type: 'weight', demo: 'one arm dumbbell row proper form tutorial' },
+      { name: 'Ring face pulls / band face pulls', target: '3 × 12–15', sets: 3, type: 'reps',  demo: 'band face pulls proper form tutorial rear delt' },
+      { name: 'DB curls',                        target: '3 × 10–12',  sets: 3, type: 'weight', demo: 'dumbbell bicep curl proper form tutorial' },
+      { name: 'Ring / DB reverse fly',           target: '3 × 12',     sets: 3, type: 'weight', demo: 'dumbbell reverse fly proper form tutorial rear delt' },
     ],
   },
 ];
@@ -681,7 +510,6 @@ const PROGRESSION_TIP = {
 // ─── Storage helpers ─────────────────────────────────────────────────────────
 
 const STORE_KEY = 'tt_v1';
-const MEDIA_KEY = 'tt_media_v1';
 
 function load() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; }
@@ -689,42 +517,6 @@ function load() {
 
 function save(data) {
   localStorage.setItem(STORE_KEY, JSON.stringify(data));
-}
-
-// ─── Media storage ────────────────────────────────────────────────────────────
-
-let mediaData = (() => {
-  try { return JSON.parse(localStorage.getItem(MEDIA_KEY)) || {}; } catch { return {}; }
-})();
-
-function saveMedia() {
-  localStorage.setItem(MEDIA_KEY, JSON.stringify(mediaData));
-}
-
-function getMedia(exName) {
-  return mediaData[exName] || { videoUrl: '', imageUrl: '' };
-}
-
-function setMedia(exName, field, value) {
-  if (!mediaData[exName]) mediaData[exName] = { videoUrl: '', imageUrl: '' };
-  mediaData[exName][field] = value;
-  saveMedia();
-}
-
-// Convert any YouTube URL to an embed URL, return null if not a YT link
-function toYtEmbed(url) {
-  if (!url) return null;
-  try {
-    const u = new URL(url);
-    let id = null;
-    if (u.hostname === 'youtu.be') {
-      id = u.pathname.slice(1);
-    } else if (u.hostname.includes('youtube.com')) {
-      if (u.pathname.startsWith('/embed/')) return url; // already embed
-      id = u.searchParams.get('v');
-    }
-    return id ? `https://www.youtube.com/embed/${id}?rel=0` : null;
-  } catch { return null; }
 }
 
 // ─── Week helpers ─────────────────────────────────────────────────────────────
@@ -911,11 +703,12 @@ function buildExercise(day, ex) {
   notesToggle.className = 'notes-toggle';
   notesToggle.textContent = 'notes';
 
-  const demoBtn = document.createElement('button');
-  const med = getMedia(ex.name);
-  demoBtn.className = 'demo-btn' + (med.videoUrl || med.imageUrl ? ' has-media' : '');
+  const demoBtn = document.createElement('a');
+  demoBtn.className = 'demo-btn';
   demoBtn.textContent = '▶ Demo';
-  demoBtn.addEventListener('click', () => openModal(ex));
+  demoBtn.href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.demo);
+  demoBtn.target = '_blank';
+  demoBtn.rel = 'noopener noreferrer';
 
   btns.appendChild(notesToggle);
   btns.appendChild(demoBtn);
@@ -1061,104 +854,6 @@ function buildHistory(day) {
 
   wrap.appendChild(table);
   return wrap;
-}
-
-// ─── Demo modal ──────────────────────────────────────────────────────────────
-
-const modalOverlay  = document.getElementById('demo-modal');
-const modalClose    = document.getElementById('modal-close');
-const modalExName   = document.getElementById('modal-ex-name');
-const modalExTarget = document.getElementById('modal-ex-target');
-const modalVideoWrap= document.getElementById('modal-video-wrap');
-const modalVideoPlaceholder = document.getElementById('modal-video-placeholder');
-const modalImgPreview = document.getElementById('modal-img-preview');
-const modalImg      = document.getElementById('modal-img');
-const modalVideoUrl = document.getElementById('modal-video-url');
-const modalImageUrl = document.getElementById('modal-image-url');
-const modalYtSearch = document.getElementById('modal-yt-search');
-
-let currentModalEx = null;
-
-function openModal(ex) {
-  currentModalEx = ex;
-  const med = getMedia(ex.name);
-
-  modalExName.textContent = ex.name;
-  modalExTarget.textContent = ex.target;
-  modalVideoUrl.value = med.videoUrl || '';
-  modalImageUrl.value = med.imageUrl || '';
-  modalYtSearch.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' tutorial form')}`;
-
-  refreshModalMedia(med);
-  modalOverlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function refreshModalMedia(med) {
-  // Video
-  const embedUrl = toYtEmbed(med.videoUrl);
-  // Remove any existing iframe
-  const existingIframe = modalVideoWrap.querySelector('iframe');
-  if (existingIframe) existingIframe.remove();
-
-  if (embedUrl) {
-    const iframe = document.createElement('iframe');
-    iframe.src = embedUrl;
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-    iframe.allowFullscreen = true;
-    modalVideoWrap.appendChild(iframe);
-    modalVideoPlaceholder.style.display = 'none';
-  } else {
-    modalVideoPlaceholder.style.display = '';
-  }
-
-  // Image
-  if (med.imageUrl) {
-    modalImg.src = med.imageUrl;
-    modalImgPreview.classList.add('visible');
-  } else {
-    modalImg.src = '';
-    modalImgPreview.classList.remove('visible');
-  }
-}
-
-function closeModal() {
-  modalOverlay.classList.remove('open');
-  document.body.style.overflow = '';
-  // Stop any playing video
-  const iframe = modalVideoWrap.querySelector('iframe');
-  if (iframe) { iframe.src = iframe.src; } // reload stops playback
-  currentModalEx = null;
-}
-
-modalClose.addEventListener('click', closeModal);
-modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-modalVideoUrl.addEventListener('change', () => {
-  if (!currentModalEx) return;
-  setMedia(currentModalEx.name, 'videoUrl', modalVideoUrl.value.trim());
-  refreshModalMedia(getMedia(currentModalEx.name));
-  updateDemoBtn(currentModalEx.name);
-});
-
-modalImageUrl.addEventListener('change', () => {
-  if (!currentModalEx) return;
-  setMedia(currentModalEx.name, 'imageUrl', modalImageUrl.value.trim());
-  refreshModalMedia(getMedia(currentModalEx.name));
-  updateDemoBtn(currentModalEx.name);
-});
-
-function updateDemoBtn(exName) {
-  // Find all demo buttons on the page and update the one for this exercise
-  const med = getMedia(exName);
-  document.querySelectorAll('.demo-btn').forEach(btn => {
-    // The button's closest exercise div contains the exercise name
-    const nameEl = btn.closest('.exercise')?.querySelector('.exercise-name');
-    if (nameEl && nameEl.textContent === exName) {
-      btn.className = 'demo-btn' + (med.videoUrl || med.imageUrl ? ' has-media' : '');
-    }
-  });
 }
 
 // ─── Nav ─────────────────────────────────────────────────────────────────────
